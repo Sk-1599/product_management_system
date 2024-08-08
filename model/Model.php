@@ -9,7 +9,23 @@ class UserModel {
         $this->conn = $database->connect();
     }
 
+    public function isEmailExists($email) {
+        $query = "SELECT * FROM user_auth WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute(['email' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
+    }
+
     public function registerUser($firstname, $lastname, $email, $password) {
+        
+        // Check if the email already exists
+        if ($this->isEmailExists($email)) {
+            echo "<script>alert('Email already exists');
+            window.location.href = 'index.php?page=register';
+            </script>";
+            exit();
+        }
+
         $query = 'INSERT INTO user_auth (firstname, lastname, email, password, confirm_password) VALUES (:firstname, :lastname, :email, :password, :confirm_password)';
         $stmt = $this->conn->prepare($query);
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);

@@ -25,6 +25,22 @@ class ProductModel {
         $stmt->execute([$id]);
     }
 
+    // Update an item
+    public function editProduct($id, $item, $description, $price, $address, $rating, $status) {
+        $query = 'UPDATE item_details SET name = :name, description = :description, price = :price,rating = :rating, address = :address, status = :status WHERE id = :id';
+        $stmt = $this->db->prepare($query);
+        $result = $stmt->execute([
+            'id' => $id,
+            'item' => $item,
+            'description' => $description,
+            'price' => $price,
+            'rating' => $rating,
+            'address' => $address,
+            'status' => $status
+        ]);
+        return $result;
+    }
+
     // Implement editProduct method similarly
 }
 ?>

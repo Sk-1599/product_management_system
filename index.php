@@ -6,20 +6,24 @@
 include_once("controller/Controller.php");
 
 $controller = new Controller();
-$page = isset($_GET['page']) ? $_GET['page'] : 'login';
+$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+$id = isset($_GET['id']) ? $_GET['id'] : null;
 
 switch ($page) {
+	case 'dashboard':
+		$controller->dashboardData();
+		break;
 	case 'login':
 		$controller->handleLogin();
 		break;
 	case 'register':
 		$controller->handleRegister();
 		break;
-	case 'admin_panel':
-		$controller->showAdminPanel();
-		break;
 	case 'add_product':
 		$controller->addProduct();
+		break;
+	case 'editProduct':
+		$controller->editProduct($id);
 		break;
 	case 'delete_product':
 		$controller->deleteProduct();
