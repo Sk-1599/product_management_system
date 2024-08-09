@@ -33,17 +33,43 @@ class Controller
             $rating = $_POST['rating'];
             $address = $_POST['address'];
             $status = $_POST['status'];
-
+    
             $this->productModel->addProduct($name, $description, $price, $rating, $address, $status);
-            header('Location: index.php?page=admin_panel');
-            exit;
+            header('Location: index.php?page=dashboard');
+
+            exit();
         }
     }
+    public function showProductForm()
+    {
+        include ('view/addProduct.php');
+    }
 
-    public function editProduct($id){
+    public function editProductForm(){
+
+        if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+            if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+                $product_id = intval($_GET['id']);
+
+                // Retrieve the book details from the model
+                $product = $this->productModel->getProductById($product_id);
+     
+                if ($product) {
+                    // Pass the book details to the view
+                    include 'view/editProduct.php'; // Adjust path if necessary
+                } else {
+                    echo "Product not found.";
+                }
+            } else {
+                echo "Invalid product ID.";
+            }
+        }
+    }
+    
+    public function editProduct(){
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Handle form submission
-            $item = $_POST['item'];
+            $name = $_POST['name'];
             $description = $_POST['description'];
             $address = $_POST['address'];
             $rating = $_POST['rating'];
@@ -51,7 +77,7 @@ class Controller
             $status = $_POST['status'];
 
             // Call the editProduct method from the model
-            $this->productModel->editProduct($id, $item, $description, $price, $address, $rating, $status);
+            $this->productModel->editProduct($name, $description, $price, $address, $rating, $status);
 
             // Redirect to dashboard after editing
             header('Location: index.php?page=dashboard');
@@ -68,7 +94,7 @@ class Controller
         if (isset($_GET['id'])) {
             $id = $_GET['id'];
             $this->productModel->deleteProduct($id);
-            header('Location: index.php?page=admin_panel');
+            header('Location: index.php?page=dashboard');
             exit;
         }
     }

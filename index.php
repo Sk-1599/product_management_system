@@ -6,7 +6,7 @@
 include_once("controller/Controller.php");
 
 $controller = new Controller();
-$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+$page = isset($_GET['page']) ? $_GET['page'] : '';
 $id = isset($_GET['id']) ? $_GET['id'] : null;
 
 switch ($page) {
@@ -19,11 +19,17 @@ switch ($page) {
 	case 'register':
 		$controller->handleRegister();
 		break;
-	case 'add_product':
+	case 'showProductForm':
+		$controller->showProductForm();
+		break;
+	case 'addProduct':
 		$controller->addProduct();
 		break;
 	case 'editProduct':
-		$controller->editProduct($id);
+		$controller->editProduct();
+		break;
+	case 'editProductForm':
+		$controller->editProductForm();
 		break;
 	case 'delete_product':
 		$controller->deleteProduct();

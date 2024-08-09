@@ -1,37 +1,64 @@
 <?php
 require_once 'Database.php';
 
-class ProductModel {
+class ProductModel
+{
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = (new Database())->connect();
     }
 
-    public function getProducts() {
+    public function getProducts()
+    {
         $stmt = $this->db->prepare('SELECT * FROM products');
         // echo "<script>console.log($stmt)</script>";
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function addProduct($name, $description, $price, $rating, $address, $status) {
+    public function addProduct($name, $description, $price, $rating, $address, $status)
+    {
         $stmt = $this->db->prepare('INSERT INTO products (name, description, price, rating, address, status) VALUES (?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$name, $description, $price, $rating, $address, $status]);
+        $success = $stmt->execute([$name, $description, $price, $rating, $address, $status]);
+
+        if ($stmt === false) {
+            die("Error: " . $this->db->errorInfo()[2]);
+        }
+
+        // Bind parameters
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':rating', $rating);
+        $stmt->bindParam(':address', $address);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':status', $status);
+
+        if ($success) {
+            echo "<script>
+                    alert('New Book added successfully');
+                    window.location.href ='?page=dashboard';
+                </script>";
+            exit(); // Ensure to call exit after the redirect
+        } else {
+            echo "Error: " . $stmt->errorInfo()[2];
+        }
     }
 
-    public function deleteProduct($id) {
+    public function deleteProduct($id)
+    {
         $stmt = $this->db->prepare('DELETE FROM products WHERE id = ?');
         $stmt->execute([$id]);
     }
 
     // Update an item
-    public function editProduct($id, $item, $description, $price, $address, $rating, $status) {
-        $query = 'UPDATE item_details SET name = :name, description = :description, price = :price,rating = :rating, address = :address, status = :status WHERE id = :id';
+    public function editProduct($name, $description, $price, $address, $rating, $status)
+    {
+        $query = 'UPDATE products SET name = :name, description = :description, price = :price,rating = :rating, address = :address, status = :status WHERE id = :id';
         $stmt = $this->db->prepare($query);
         $result = $stmt->execute([
-            'id' => $id,
-            'item' => $item,
+            'name' => $name,
             'description' => $description,
             'price' => $price,
             'rating' => $rating,
@@ -41,6 +68,13 @@ class ProductModel {
         return $result;
     }
 
+    public function getProductById($id) {
+        $sql = "SELECT * FROM products WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Implement editProduct method similarly
 }
-?>

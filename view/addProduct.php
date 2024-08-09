@@ -122,8 +122,8 @@
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
-                        
-                        <a href="index.php?page=showProductForm" class="btn btn-primary my-4">Add New Item</a>
+
+                        <a href="index.php?page=addProduct" class="btn btn-primary my-4">Add New Item</a>
                         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                         <li class="nav-item dropdown no-arrow d-sm-none">
                             <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -293,46 +293,46 @@
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Item Data</h6>
-                        </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <?php if (isset($products) && is_iterable($products)) : ?>
-                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                        <thead>
-                                            <tr>
-                                                <th>Item</th>
-                                                <th>Description</th>
-                                                <th>Price</th>
-                                                <th>Rating</th>
-                                                <th>Address</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-
-                                            <?php foreach ($products as $product) : ?>
-                                                <tr>
-                                                    <td><?= htmlspecialchars($product['name']); ?></td>
-                                                    <td><?= htmlspecialchars($product['description']); ?></td>
-                                                    <td><?= htmlspecialchars($product['price']); ?></td>
-                                                    <td><?= htmlspecialchars($product['rating']); ?></td>
-                                                    <td><?= htmlspecialchars($product['address']); ?></td>
-                                                    <td><?= htmlspecialchars($product['status']); ?></td>
-                                                    <td>
-                                                        <a href="index.php?page=editProductForm&id=<?= htmlspecialchars($product['id']); ?>" class="btn btn-primary my-1">Edit</a>
-                                                        <a href="index.php?page=delete_product&id=<?= htmlspecialchars($product['id']); ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
-                                                    </td>
-                                                </tr>
-
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                <?php else : ?>
-                                    <p>No products available.</p>
-                                <?php endif; ?>
+                                    <!-- Add Product Form -->
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header py-3">
+                                            <h6 class="m-0 font-weight-bold text-primary">Add New Product</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <form action="index.php?page=addProduct" method="POST">
+                                                <div class="form-group">
+                                                    <label for="itemName">Item Name</label>
+                                                    <input type="text" class="form-control" id="itemName" name="name" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="description">Description</label>
+                                                    <textarea class="form-control" id="description" name="description" required></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="price">Price</label>
+                                                    <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="rating">Rating</label>
+                                                    <input type="number" step="0.1" max="5" class="form-control" id="rating" name="rating" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="address">Address</label>
+                                                    <input type="text" class="form-control" id="address" name="address" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="status">Status</label>
+                                                    <select class="form-control" id="status" name="status" required>
+                                                        <option value="Available">Available</option>
+                                                        <option value="Out of Stock">Out of Stock</option>
+                                                    </select>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Add Product</button>
+                                            </form>
+                                        </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
