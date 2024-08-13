@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -255,7 +256,7 @@
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Welcome, <?php echo $_SESSION['firstname']." ".$_SESSION['lastname'] ." "; ?>!</span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->
@@ -287,12 +288,9 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
-                    <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <!-- Add Product Form -->
                                 <div class="card shadow mb-4">
                                     <div class="card-header py-3">
                                         <h6 class="m-0 font-weight-bold text-primary">Edit Product Form</h6>
@@ -300,31 +298,32 @@
                                     <div class="card-body">
                                         <?php if (isset($product)): ?>
                                             <form action="index.php?page=editProduct" method="POST">
+                                                <input type="hidden" name="id" value="<?= $product['id'] ?>">
                                                 <div class="form-group">
                                                     <label for="itemName">Item Name</label>
-                                                    <input type="text" class="form-control" id="itemName" value="<?php echo $product['name'] ?>" name="name" required>
+                                                    <input type="text" class="form-control" id="itemName" value="<?= htmlspecialchars($product['name']) ?>" name="name" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="description">Description</label>
-                                                    <input type="text" class="form-control" id="description" value="<?php echo $product['description'] ?>" name="description" required>
+                                                    <input type="text" class="form-control" id="description" value="<?= htmlspecialchars($product['description']) ?>" name="description" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="price">Price</label>
-                                                    <input type="number" step="0.01" class="form-control" id="price" name="price" value="<?php echo $product['price'] ?>" required>
+                                                    <input type="number" step="0.01" class="form-control" id="price" name="price" value="<?= htmlspecialchars($product['price']) ?>" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="rating">Rating</label>
-                                                    <input type="number" step="0.1" max="5" class="form-control" id="rating" name="rating" value="<?php echo $product['rating'] ?>" required>
+                                                    <input type="number" step="0.1" max="5" class="form-control" id="rating" name="rating" value="<?= htmlspecialchars($product['rating']) ?>" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="address">Address</label>
-                                                    <input type="text" class="form-control" id="address" name="address" value="<?php echo $product['address'] ?>" required>
+                                                    <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($product['address']) ?>" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="status">Status</label>
-                                                    <select class="form-control" id="status" name="status" value="<?php echo $product['status'] ?>" required>
-                                                        <option value="Available">Available</option>
-                                                        <option value="Out of Stock">Out of Stock</option>
+                                                    <select class="form-control" id="status" name="status" required>
+                                                        <option value="Available" <?= $product['status'] === 'Available' ? 'selected' : '' ?>>Available</option>
+                                                        <option value="Out of Stock" <?= $product['status'] === 'Out of Stock' ? 'selected' : '' ?>>Out of Stock</option>
                                                     </select>
                                                 </div>
                                                 <button type="submit" class="btn btn-primary">Edit Product</button>
@@ -337,7 +336,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <!-- /.container-fluid -->
 

@@ -1,5 +1,5 @@
 <?php
-require_once 'model/Model.php';
+require_once 'model/UserModel.php';
 require_once 'model/ProductModel.php';
 
 class Controller
@@ -33,71 +33,92 @@ class Controller
             $rating = $_POST['rating'];
             $address = $_POST['address'];
             $status = $_POST['status'];
-    
-            $this->productModel->addProduct($name, $description, $price, $rating, $address, $status);
-            header('Location: index.php?page=dashboard');
 
-            exit();
-        }
-    }
-    public function showProductForm()
-    {
-        include ('view/addProduct.php');
-    }
+            $productId = $this->productModel->addProduct($name, $description, $price, $rating, $address, $status);
 
-    public function editProductForm(){
-
-        if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-            if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-                $product_id = intval($_GET['id']);
-
-                // Retrieve the book details from the model
-                $product = $this->productModel->getProductById($product_id);
-     
-                if ($product) {
-                    // Pass the book details to the view
-                    include 'view/editProduct.php'; // Adjust path if necessary
-                } else {
-                    echo "Product not found.";
-                }
+            if ($productId) {
+                echo "<script>
+                    alert('New Product added successfully');
+                    window.location.href = 'index.php?page=dashboard';
+                </script>";
+                exit();
             } else {
-                echo "Invalid product ID.";
+                echo "Error: Unable to add product.";
             }
         }
     }
-    
-    public function editProduct(){
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Handle form submission
+
+    public function showProductForm()
+    {
+        include('view/addProduct.php');
+    }
+
+    public function editProductForm()
+    {
+        if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+            $product_id = intval($_GET['id']);
+
+            // Retrieve the product details from the model
+            $product = $this->productModel->getProductById($product_id);
+
+            if ($product) {
+                include 'view/editProduct.php'; // Pass the product details to the view
+            } else {
+                echo "Product not found.";
+            }
+        } else {
+            echo "Invalid product ID.";
+        }
+    }
+
+    public function editProduct()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = intval($_POST['id']);
             $name = $_POST['name'];
             $description = $_POST['description'];
-            $address = $_POST['address'];
-            $rating = $_POST['rating'];
             $price = $_POST['price'];
+            $rating = $_POST['rating'];
+            $address = $_POST['address'];
             $status = $_POST['status'];
 
-            // Call the editProduct method from the model
-            $this->productModel->editProduct($name, $description, $price, $address, $rating, $status);
+            // Update the product in the database
+            $success = $this->productModel->editProduct($id, $name, $description, $price, $rating, $address, $status);
 
-            // Redirect to dashboard after editing
-            header('Location: index.php?page=dashboard');
-            exit();
-        } else {
-            // Display edit form
-            // $item = $this->productModel->getItemById($id);
-            require 'view/dashboard.php';
+            if ($success) {
+                echo "<script>
+                    alert('Product updated successfully');
+                    window.location.href = 'index.php?page=dashboard';
+                  </script>";
+                exit();
+            } else {
+                echo "Error updating product.";
+            }
         }
     }
 
     public function deleteProduct()
     {
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
-            $this->productModel->deleteProduct($id);
-            header('Location: index.php?page=dashboard');
-            exit;
+        try {
+            if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+                $id = intval($_GET['id']);
+                $deleted = $this->productModel->deleteProduct($id);
+
+                if ($deleted) {
+                    header('Location: index.php?page=dashboard&msg=Product Deleted');
+                    exit;
+                } else {
+                    echo "Product not found or could not be deleted.";
+                }
+            } else {
+                echo "Invalid product ID.";
+            }
+        } catch (Exception $e) {
+            echo "An error occurred: " . $e->getMessage();
         }
     }
+
+
 
     public function handleRegister()
     {
@@ -127,9 +148,22 @@ class Controller
         include 'view/register.php';
     }
 
+    public function handleLogout()
+    {
+        session_start();
+        session_unset();
+        session_destroy(); // Destroy the session
+        header('Location: ?page=login'); // Redirect to the login page
+        exit();
+    }
+
     public function handleLogin()
     {
         $error = '';
+
+        session_start(); // Start the session at the beginning of the script
+
+        // Assuming you have form data posted for username and password
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = trim($_POST['email']);
@@ -140,10 +174,14 @@ class Controller
             } else {
                 $user = $this->userModel->loginUser($email, $password);
                 if ($user) {
+                    // Store user data in session variables
+                    $_SESSION['firstname'] = $user['firstname'];
+                    $_SESSION['lastname'] = $user['lastname'];
+
                     echo "<script>
-                        alert('Login successful');
-                        window.location.href = 'index.php?page=dashboard';
-                        </script>";
+                    alert('Login successful');
+                    window.location.href = 'index.php?page=dashboard';
+                    </script>";
                     exit;
                 } else {
                     $error = 'Invalid email or password.';
