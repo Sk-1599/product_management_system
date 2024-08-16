@@ -171,16 +171,16 @@ class Controller
         session_unset();
         session_destroy(); // Destroy the session
         error_log("User logged out and session destroyed.");
-        header('Location: ?page=login'); // Redirect to the login page
+        header('Location: ?page=showlogin'); // Redirect to the login page
 
         exit();
     }
 
     public function handleLogin()
     {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        // if (session_status() == PHP_SESSION_NONE) {
+        //     session_start();
+        // }
 
         $error = '';
 
@@ -197,13 +197,13 @@ class Controller
                 $user = $this->userModel->loginUser($email, $password);
                 if ($user) {
                     // Store user data in session variables
-                    $_SESSION['logged_in'] = true;
+                    $_SESSION['loggedin'] = true;
                     $_SESSION['firstname'] = $user['firstname'];
                     $_SESSION['lastname'] = $user['lastname'];
 
                     echo "<script>
                 alert('Login successful');
-                window.location.href = '?page=dashboard';
+                window.location.href = 'index.php?page=dashboard';
                 </script>";
                     exit;
                 } else {

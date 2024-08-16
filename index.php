@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 include_once("controller/Controller.php");
 
 $controller = new Controller();
@@ -34,6 +36,9 @@ switch ($page) {
 		break;
 	case 'deleteproduct':
 		$controller->deleteProduct();
+		break;
+	case 'filterdata':
+		$controller->filterdata();
 		break;
 	default:
 		$controller->showLogin();

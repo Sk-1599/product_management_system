@@ -1,3 +1,10 @@
+<?php
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header('Location: index.php?page=showlogin');
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -113,9 +120,9 @@
                         <div class="input-group">
                             <div class="input-group-append">
                                 <!-- <input type="hidden" name="page" value="filterdata"> -->
-                                <input type="text" class="form-control bg-light border-primary small ml-2" placeholder="Search product" aria-label="Search" aria-describedby="basic-addon2">
-                                <input type="text" class="form-control bg-light border-primary small ml-2" placeholder="Search price" aria-label="Search" aria-describedby="basic-addon2">
-                                <input type="text" class="form-control bg-light border-primary small ml-2" placeholder="Search status" aria-label="Search" aria-describedby="basic-addon2">
+                                <input type="text" name="product_name" class="form-control bg-light border-primary small ml-2" placeholder="Search product" aria-label="Search" aria-describedby="basic-addon2">
+                                <input type="text" name="price" class="form-control bg-light border-primary small ml-2" placeholder="Search price" aria-label="Search" aria-describedby="basic-addon2">
+                                <input type="text" name="status" class="form-control bg-light border-primary small ml-2" placeholder="Search status" aria-label="Search" aria-describedby="basic-addon2">
                                 <button class="rounded btn btn-primary mx-1" type="submit">
                                     <i class="fas fa-search fa-sm"></i>
                                 </button>
@@ -201,7 +208,6 @@
                                                 <th>Description</th>
                                                 <th>Price</th>
                                                 <th>Rating</th>
-                                                <th>Address</th>
                                                 <th>Status</th>
                                                 <th>Actions</th>
                                             </tr>
@@ -213,7 +219,6 @@
                                                     <td><?= htmlspecialchars($product['description']); ?></td>
                                                     <td><?= htmlspecialchars($product['price']); ?></td>
                                                     <td><?= htmlspecialchars($product['rating']); ?></td>
-                                                    <td><?= htmlspecialchars($product['address']); ?></td>
                                                     <td><?= htmlspecialchars($product['status']); ?></td>
                                                     <td>
                                                         <a href="index.php?page=editProductForm&id=<?= htmlspecialchars($product['id']); ?>" class="btn btn-primary my-1">Edit</a>

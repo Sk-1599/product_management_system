@@ -187,14 +187,21 @@ class ProductModel
     }
     public function searchProducts($name_query, $price_query, $status_query)
     {
-        $sql = "SELECT p.product_id,
-                   p.product_name,
-                   MAX(CASE WHEN at.attribute_name = 'Price' THEN pv.value END) as Price,
-                   MAX(CASE WHEN at.attribute_name = 'Status' THEN pv.value END) as Status
-            FROM products p
-            LEFT JOIN product_values pv ON p.product_id = pv.product_id
-            LEFT JOIN attribute_table at ON pv.attribute_id = at.attribute_id
-            WHERE 1=1";
+        $sql = "SELECT p.product_id, p.product_name,
+            MAX(CASE WHEN at.attribute_name = 'Description' THEN pv.value END) as description,
+            MAX(CASE WHEN at.attribute_name = 'Price' THEN pv.value END) as price,
+            MAX(CASE WHEN at.attribute_name = 'Rating' THEN pv.value END) as rating,
+            MAX(CASE WHEN at.attribute_name = 'Status' THEN pv.value END) as status
+        FROM products p
+        LEFT JOIN product_values pv ON p.product_id = pv.product_id
+        LEFT JOIN attribute_table at ON pv.attribute_id = at.attribute_id
+        LEFT JOIN product_values pv_description ON p.product_id = pv_description.product_id
+        LEFT JOIN attribute_table at_description ON pv_description.attribute_id = at_description.attribute_id AND at_description.attribute_name = 'description'
+        LEFT JOIN product_values pv_price ON p.product_id = pv_price.product_id
+        LEFT JOIN attribute_table at_price ON pv_price.attribute_id = at_price.attribute_id AND at_price.attribute_name = 'price'
+        LEFT JOIN product_values pv_status ON p.product_id = pv_status.product_id
+        LEFT JOIN attribute_table at_status ON pv_status.attribute_id = at_status.attribute_id AND at_status.attribute_name = 'status'
+        WHERE 1=1";
 
         $params = [];
 
@@ -204,12 +211,24 @@ class ProductModel
         }
 
         if (!empty($price_query)) {
-            $sql .= " AND (at.attribute_name = 'Price' AND pv.value LIKE ?)";
+            $sql .= " AND p.product_id IN (
+                        SELECT p2.product_id
+                        FROM products p2
+                        LEFT JOIN product_values pv2 ON p2.product_id = pv2.product_id
+                        LEFT JOIN attribute_table at2 ON pv2.attribute_id = at2.attribute_id
+                        WHERE at2.attribute_name = 'price' AND pv2.value LIKE ?
+                    )";
             $params[] = "%$price_query%";
         }
-
+    
         if (!empty($status_query)) {
-            $sql .= " AND (at.attribute_name = 'Status' AND pv.value LIKE ?)";
+            $sql .= " AND p.product_id IN (
+                        SELECT p3.product_id
+                        FROM products p3
+                        LEFT JOIN product_values pv3 ON p3.product_id = pv3.product_id
+                        LEFT JOIN attribute_table at3 ON pv3.attribute_id = at3.attribute_id
+                        WHERE at3.attribute_name = 'status' AND pv3.value LIKE ?
+                    )";
             $params[] = "%$status_query%";
         }
 

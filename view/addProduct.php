@@ -1,3 +1,9 @@
+<?php
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header('Location: ?page=showlogin');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
