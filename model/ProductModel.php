@@ -185,6 +185,38 @@ class ProductModel
         }
         return $product;
     }
+    public function searchProducts($name_query, $price_query, $status_query)
+    {
+        $sql = "SELECT p.product_id,
+                   p.product_name,
+                   MAX(CASE WHEN at.attribute_name = 'Price' THEN pv.value END) as Price,
+                   MAX(CASE WHEN at.attribute_name = 'Status' THEN pv.value END) as Status
+            FROM products p
+            LEFT JOIN product_values pv ON p.product_id = pv.product_id
+            LEFT JOIN attribute_table at ON pv.attribute_id = at.attribute_id
+            WHERE 1=1";
 
-    // Implement editProduct method similarly
+        $params = [];
+
+        if (!empty($name_query)) {
+            $sql .= " AND p.product_name LIKE ?";
+            $params[] = "%$name_query%";
+        }
+
+        if (!empty($price_query)) {
+            $sql .= " AND (at.attribute_name = 'Price' AND pv.value LIKE ?)";
+            $params[] = "%$price_query%";
+        }
+
+        if (!empty($status_query)) {
+            $sql .= " AND (at.attribute_name = 'Status' AND pv.value LIKE ?)";
+            $params[] = "%$status_query%";
+        }
+
+        $sql .= " GROUP BY p.product_id, p.product_name";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

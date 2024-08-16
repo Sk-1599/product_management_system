@@ -150,38 +150,61 @@ class Controller
 
     public function handleLogout()
     {
-        session_start();
+        // Start the  if it hasn't already been started
+        // Unset all of the session variables
+        $_SESSION = array();
+
+        // If it's desired to kill the session, also delete the session cookie
+        // Note: This will destroy the session, and not just the session data!
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
         session_unset();
         session_destroy(); // Destroy the session
+        error_log("User logged out and session destroyed.");
         header('Location: ?page=login'); // Redirect to the login page
+
         exit();
     }
 
     public function handleLogin()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
         $error = '';
 
-        session_start(); // Start the session at the beginning of the script
-
-        // Assuming you have form data posted for username and password
-
+       
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = trim($_POST['email']);
-            $password = trim($_POST['password']);
+            // Retrieve the email and password from the POST request
+            $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+            $password = isset($_POST['password']) ? trim($_POST['password']) : '';
 
             if (empty($email) || empty($password)) {
                 $error = 'Please fill in all fields.';
             } else {
+                // Call the loginUser function from the userModel
                 $user = $this->userModel->loginUser($email, $password);
                 if ($user) {
                     // Store user data in session variables
+                    $_SESSION['logged_in'] = true;
                     $_SESSION['firstname'] = $user['firstname'];
                     $_SESSION['lastname'] = $user['lastname'];
 
                     echo "<script>
-                    alert('Login successful');
-                    window.location.href = 'index.php?page=dashboard';
-                    </script>";
+                alert('Login successful');
+                window.location.href = '?page=dashboard';
+                </script>";
                     exit;
                 } else {
                     $error = 'Invalid email or password.';
@@ -190,5 +213,23 @@ class Controller
         }
 
         include 'view/login.php';
+    }
+
+
+    public function filterdata()
+    {
+        $name_query = $_POST['product_name'] ?? '';
+        $price_query = $_POST['price'] ?? '';
+        $status_query = $_POST['status'] ?? '';
+
+        $products = $this->productModel->searchProducts($name_query, $price_query, $status_query);
+
+        // Check if it's an AJAX request
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            include_once 'view/filterdata.php'; // Only include the part of the view that displays the products
+        } else {
+            // Fallback to the regular way if not an AJAX request
+            include_once 'view/filterdata.php';
+        }
     }
 }
