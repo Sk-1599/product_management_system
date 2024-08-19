@@ -18,14 +18,14 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <title>Dashboard - Tables</title>
 
     <!-- Custom fonts for this template -->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="view/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="view/css/sb-admin-2.min.css" rel="stylesheet">
 
     <!-- Custom styles for this page -->
-    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="view/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
 </head>
 
@@ -297,31 +297,28 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                                         <div class="card-body">
                                             <form action="index.php?page=addProduct" method="POST">
                                                 <div class="form-group">
-                                                    <label for="itemName">Item Name</label>
-                                                    <input type="text" class="form-control" id="itemName" name="name" required>
+                                                    <label for="name">Product name</label>
+                                                    <input type="text" class="form-control" id="name" name="name" required>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="description">Description</label>
-                                                    <textarea class="form-control" id="description" name="description" required></textarea>
+                                                    <label for="sku">SKU</label>
+                                                    <input type="text" class="form-control" id="sku" name="sku" required>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="price">Price</label>
-                                                    <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                                                    <label for="category">Category</label>
+                                                    <textarea class="form-control" id="category" name="category" required></textarea>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="rating">Rating</label>
-                                                    <input type="number" step="0.1" max="5" class="form-control" id="rating" name="rating" required>
+                                                    <label for="shipping">Shipping days</label>
+                                                    <input type="number" step="0.01" class="form-control" id="shipping_days" name="shipping_days" required>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="address">Address</label>
-                                                    <input type="text" class="form-control" id="address" name="address" required>
+                                                    <label for="gender">Gender</label>
+                                                    <input type="text" class="form-control" id="gender" name="gender" required>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="status">Status</label>
-                                                    <select class="form-control" id="status" name="status" required>
-                                                        <option value="Available">Available</option>
-                                                        <option value="Out of Stock">Out of Stock</option>
-                                                    </select>
+                                                    <label for="inventory">Inventory</label>
+                                                    <input type="number" step="0.01" class="form-control" class="form-control" id="inventory" name="inventory" required>
                                                 </div>
                                                 <button type="submit" class="btn btn-primary">Add Product</button>
                                             </form>
@@ -378,21 +375,21 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     </div>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="view/vendor/jquery/jquery.min.js"></script>
+    <script src="view/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="view/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
+    <script src="view/js/sb-admin-2.min.js"></script>
 
     <!-- Page level plugins -->
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="view/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="view/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
     <!-- Page level custom scripts -->
-    <script src="js/demo/datatables-demo.js"></script>
+    <script src="view/js/demo/datatables-demo.js"></script>
 
 </body>
 

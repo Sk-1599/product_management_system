@@ -13,12 +13,12 @@ class ProductModel
     public function getProducts()
     {
         $query = '
-            SELECT p.product_id, p.product_name, a.attribute_name, v.value
-            FROM products p
-            LEFT JOIN product_values v ON p.product_id = v.product_id
-            LEFT JOIN attribute_table a ON v.attribute_id = a.attribute_id
-            ORDER BY p.product_id
-        ';
+        SELECT p.product_id, p.product_name, a.attribute_name, v.value
+        FROM products p
+        LEFT JOIN product_values v ON p.product_id = v.product_id
+        LEFT JOIN attribute_table a ON v.attribute_id = a.attribute_id
+        ORDER BY p.product_id
+    ';
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -30,23 +30,34 @@ class ProductModel
                 $products[$productId] = [
                     'id' => $productId,
                     'product_name' => $row['product_name'],
-                    'description' => '',
-                    'price' => '',
-                    'rating' => '',
-                    'address' => '',
-                    'status' => ''
+                    'sku' => '',
+                    'category' => '',
+                    'shipping_days' => '',
+                    'gender' => '',
+                    'inventory' => ''
                 ];
             }
-            $attributeName = strtolower($row['attribute_name']); // Ensure the attribute name is in lowercase
-            if (array_key_exists($attributeName, $products[$productId])) {
-                $products[$productId][$attributeName] = $row['value'];
+
+            $attributeName = strtolower($row['attribute_name']);
+            $attributeMap = [
+                'sku' => 'sku',
+                'category' => 'category',
+                'shipping days' => 'shipping_days',
+                'gender' => 'gender',
+                'inventory' => 'inventory'
+            ];
+
+            // Set the attribute value if it exists in the map
+            if (array_key_exists($attributeName, $attributeMap)) {
+                $products[$productId][$attributeMap[$attributeName]] = $row['value'];
             }
         }
 
         return $products;
     }
 
-    public function addProduct($name, $description, $price, $rating, $address, $status)
+
+    public function addProduct($name, $sku, $category, $shipping_days, $gender, $inventory)
     {
         // Insert into products table
         $stmt = $this->db->prepare('INSERT INTO products (product_name) VALUES (:name)');
@@ -60,13 +71,13 @@ class ProductModel
         // Get the last inserted product ID
         $productId = $this->db->lastInsertId();
 
-        // Insert into value_table for each attribute
+        // Define attribute IDs for each attribute
         $attributes = [
-            1 => $description, // Description
-            2 => $price,       // Price
-            3 => $rating,      // Rating
-            4 => $address,     // Address
-            5 => $status       // Status
+            1 => $sku,            // SKU
+            2 => $category,       // Category
+            3 => $shipping_days,  // Shipping Days
+            4 => $gender,         // Gender
+            5 => $inventory       // Inventory
         ];
 
         foreach ($attributes as $attributeId => $value) {
@@ -83,6 +94,7 @@ class ProductModel
 
         return $productId;
     }
+
 
 
     public function deleteProduct($id)
@@ -220,7 +232,7 @@ class ProductModel
                     )";
             $params[] = "%$price_query%";
         }
-    
+
         if (!empty($status_query)) {
             $sql .= " AND p.product_id IN (
                         SELECT p3.product_id

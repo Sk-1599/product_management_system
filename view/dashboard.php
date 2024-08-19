@@ -19,14 +19,14 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <title>Dashboard - Tables</title>
 
     <!-- Custom fonts for this template -->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="view/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="view/css/sb-admin-2.min.css" rel="stylesheet">
 
     <!-- Custom styles for this page -->
-    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="view/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
 </head>
 
@@ -133,6 +133,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
 
+                        <a href="index.php?page=registerVendor" class="btn btn-primary my-4 float-right mr-2">Add Vendor</a>
                         <a href="index.php?page=showProductForm" class="btn btn-primary my-4 float-right">Add New Item</a>
                         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                         <li class="nav-item dropdown no-arrow d-sm-none">
@@ -160,7 +161,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Welcome!</span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Welcome! <?php echo htmlspecialchars($_SESSION['firstname']) ?></span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->
@@ -205,10 +206,11 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                                         <thead>
                                             <tr>
                                                 <th>Product Name</th>
-                                                <th>Description</th>
-                                                <th>Price</th>
-                                                <th>Rating</th>
-                                                <th>Status</th>
+                                                <th>SKU</th>
+                                                <th>Category</th>
+                                                <th>Shipping Days</th>
+                                                <th>Gender</th>
+                                                <th>Inventory</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -216,10 +218,11 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                                             <?php foreach ($products as $product) : ?>
                                                 <tr>
                                                     <td><?= htmlspecialchars($product['product_name']); ?></td>
-                                                    <td><?= htmlspecialchars($product['description']); ?></td>
-                                                    <td><?= htmlspecialchars($product['price']); ?></td>
-                                                    <td><?= htmlspecialchars($product['rating']); ?></td>
-                                                    <td><?= htmlspecialchars($product['status']); ?></td>
+                                                    <td><?= htmlspecialchars($product['sku']); ?></td>
+                                                    <td><?= htmlspecialchars($product['category']); ?></td>
+                                                    <td><?= htmlspecialchars($product['shipping_days']); ?></td>
+                                                    <td><?= htmlspecialchars($product['gender']); ?></td>
+                                                    <td><?= htmlspecialchars($product['inventory']); ?></td>
                                                     <td>
                                                         <a href="index.php?page=editProductForm&id=<?= htmlspecialchars($product['id']); ?>" class="btn btn-primary my-1">Edit</a>
                                                         <a href="index.php?page=deleteproduct&id=<?= htmlspecialchars($product['id']); ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
@@ -316,25 +319,25 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="?page=login">Logout</a>
+                    <a class="btn btn-primary" href="?page=logout">Logout</a>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="view/vendor/jquery/jquery.min.js"></script>
+    <script src="view/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="view/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
+    <script src="view/js/sb-admin-2.min.js"></script>
 
     <!-- Page level plugins -->
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="view/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="view/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>

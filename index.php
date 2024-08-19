@@ -4,11 +4,19 @@ session_start();
 include_once("controller/Controller.php");
 
 $controller = new Controller();
+
 $page = isset($_GET['page']) ? $_GET['page'] : '';
+
 
 switch ($page) {
 	case 'dashboard':
 		$controller->dashboardData();
+		break;
+	case 'vendorDashboard':
+		$controller->vendorDashboard();
+		break;
+	case 'registerVendor':
+		$controller->registerVendor();
 		break;
 	case 'login':
 		$controller->handleLogin();

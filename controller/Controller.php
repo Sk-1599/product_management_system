@@ -24,29 +24,35 @@ class Controller
         include 'view/login.php';
     }
 
+    public function registerVendor()
+    {
+        include 'view/registerVendor.php';
+    }
+
     public function addProduct()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $_POST['name'];
-            $description = $_POST['description'];
-            $price = $_POST['price'];
-            $rating = $_POST['rating'];
-            $address = $_POST['address'];
-            $status = $_POST['status'];
+            $sku = $_POST['sku'];
+            $category = $_POST['category'];
+            $shipping_days = $_POST['shipping_days'];
+            $gender = $_POST['gender'];
+            $inventory = $_POST['inventory'];
 
-            $productId = $this->productModel->addProduct($name, $description, $price, $rating, $address, $status);
+            $productId = $this->productModel->addProduct($name, $sku, $category, $shipping_days, $gender, $inventory);
 
             if ($productId) {
                 echo "<script>
-                    alert('New Product added successfully');
-                    window.location.href = 'index.php?page=dashboard';
-                </script>";
+                alert('New Product added successfully');
+                window.location.href = 'index.php?page=dashboard';
+            </script>";
                 exit();
             } else {
                 echo "Error: Unable to add product.";
             }
         }
     }
+
 
     public function showProductForm()
     {
@@ -176,6 +182,10 @@ class Controller
         exit();
     }
 
+    public function vendorDashboard(){
+        include 'view/vendorDashboard.php';
+    }
+
     public function handleLogin()
     {
         // if (session_status() == PHP_SESSION_NONE) {
@@ -184,7 +194,7 @@ class Controller
 
         $error = '';
 
-       
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Retrieve the email and password from the POST request
             $email = isset($_POST['email']) ? trim($_POST['email']) : '';
@@ -201,10 +211,21 @@ class Controller
                     $_SESSION['firstname'] = $user['firstname'];
                     $_SESSION['lastname'] = $user['lastname'];
 
-                    echo "<script>
-                alert('Login successful');
-                window.location.href = 'index.php?page=dashboard';
-                </script>";
+                    // Check if the user is an admin or a vendor
+                    $isAdmin = $this->userModel->isAdmin($email);
+                    // $isAdmin = '1';
+                    echo "is_admin value: " . $isAdmin;
+                    if ($isAdmin === 1) {
+                        echo "<script>
+                        alert('Login successful. Redirecting to Admin Dashboard.');
+                        window.location.href = 'index.php?page=dashboard';
+                    </script>";
+                    } else {
+                        echo "<script>
+                        alert('Login successful. Redirecting to Vendor Dashboard.');
+                        window.location.href = 'index.php?page=vendorDashboard';
+                    </script>";
+                    }
                     exit;
                 } else {
                     $error = 'Invalid email or password.';
