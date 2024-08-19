@@ -1,1 +1,1 @@
-<h1>aha tamatar bade majedar</h1>
+<h1>Vendor dashboard</h1>
