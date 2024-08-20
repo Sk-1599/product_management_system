@@ -39,7 +39,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="?page=table">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -111,74 +111,52 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                             <h6 class="m-0 font-weight-bold text-primary">Item Data</h6>
                         </div>
                         <div class="card-body">
-                            <?php if (isset($products) && is_iterable($products)) : ?>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                        <thead>
-                                            <tr>
-                                                <th>Product Name</th>
-                                                <th><a href="#" class="sort" data-sort="sku">SKU</a></th>
-                                                <th><a href="#" class="sort" data-sort="category">Category</a></th>
-                                                <th><a href="#" class="sort" data-sort="shipping_days">Shipping Days</a></th>
-                                                <th>Gender</th>
-                                                <th>Inventory</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="table">
-                                            <?php foreach ($products as $product) : ?>
-                                                <tr>
-                                                    <td><?= htmlspecialchars($product['product_name']); ?></td>
-                                                    <td><?= htmlspecialchars($product['sku']); ?></td>
-                                                    <td><?= htmlspecialchars($product['category']); ?></td>
-                                                    <td><?= htmlspecialchars($product['shipping_days']); ?></td>
-                                                    <td><?= htmlspecialchars($product['gender']); ?></td>
-                                                    <td><?= htmlspecialchars($product['inventory']); ?></td>
-                                                    <td>
-                                                        <a href="index.php?page=editVendorProductForm&id=<?= htmlspecialchars($product['id']); ?>" class="btn btn-primary my-1">Edit</a>
-                                                        <!-- <a href="index.php?page=deleteproduct&id=<?= htmlspecialchars($product['id']); ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a> -->
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                <?php else : ?>
-                                    <p>No products available.</p>
-                                <?php endif; ?>
-                                </div>
+                            <?php if (isset($product)): ?>
+                                <form action="index.php?page=editVendorProduct" method="POST">
+                                <input type="hidden" name="product_id" value="<?= htmlspecialchars($product['product_id']) ?>">
+                                    
+                                    <div class="form-group">
+                                        <label for="product_name">Product Name</label>
+                                        <input type="text" class="form-control" id="product_name" value="<?= htmlspecialchars($product['product_name']) ?>" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="sku">SKU</label>
+                                        <input type="text" class="form-control" id="sku" value="<?= htmlspecialchars($product['sku']) ?>" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="category">Category</label>
+                                        <input type="text" class="form-control" id="category" value="<?= htmlspecialchars($product['category']) ?>" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="shipping_days">Shipping Days</label>
+                                        <input type="number" class="form-control" id="shipping_days" value="<?= htmlspecialchars($product['shipping_days']) ?>" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="gender">Gender</label>
+                                        <input type="text" class="form-control" id="gender" value="<?= htmlspecialchars($product['gender']) ?>" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="inventory">Inventory</label>
+                                        <input type="number" class="form-control" id="inventory" name="inventory" value="<?= htmlspecialchars($product['inventory']) ?>" required>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Update Inventory</button>
+                                </form>
+                            <?php else: ?>
+                                <p>Product data not found.</p>
+                            <?php endif; ?>
+
                         </div>
                     </div>
-
                 </div>
-                <!-- /.container-fluid -->
 
-                <script>
-                    $(document).ready(function() {
-                        $('.sort').on('click', function(e) {
-                            e.preventDefault();
-
-                            let sortBy = $(this).data('sort');
-                            let sortOrder = $(this).hasClass('asc') ? 'desc' : 'asc';
-
-                            // Toggle sort order class
-                            $('.sort').removeClass('asc').removeClass('desc');
-                            $(this).addClass(sortOrder);
-
-                            // AJAX request to sort the data
-                            $.ajax({
-                                url: 'view/sortProducts.php',
-                                type: 'GET',
-                                data: {
-                                    sortBy: sortBy,
-                                    sortOrder: sortOrder
-                                },
-                                success: function(response) {
-                                    $('#dataTable tbody').html(response);
-                                }
-                            });
-                        });
-                    });
-                </script>
+            </div>
+            <!-- /.container-fluid -->
 
 
-                <?php include 'view/footer.php' ?>
+            <?php include 'view/footer.php' ?>

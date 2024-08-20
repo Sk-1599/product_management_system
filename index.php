@@ -15,6 +15,15 @@ switch ($page) {
 	case 'vendorDashboard':
 		$controller->vendorDashboard();
 		break;
+	case 'editVendorProductForm':
+		$controller->editVendorProductForm();
+		break;
+	case 'editVendorProduct':
+		$controller->editVendorProduct();
+		break;
+	case 'showVendorForm':
+		$controller->showVendorForm();
+		break;
 	case 'registerVendor':
 		$controller->registerVendor();
 		break;

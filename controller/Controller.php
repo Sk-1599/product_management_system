@@ -24,9 +24,52 @@ class Controller
         include 'view/login.php';
     }
 
+    public function showVendorForm()
+    {
+        include 'view/showVendorForm.php';
+    }
+
+
     public function registerVendor()
     {
-        include 'view/registerVendor.php';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $firstName = isset($_POST['first_name']) ? $_POST['first_name'] : '';
+            $lastName = isset($_POST['last_name']) ? $_POST['last_name'] : '';
+            $email = isset($_POST['email']) ? $_POST['email'] : '';
+            $password = isset($_POST['password']) ? $_POST['password'] : '';
+            $confirmPassword = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
+
+            // Basic validation to check if fields are not empty
+            if (empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($confirmPassword)) {
+                echo "All fields are required.";
+                return;
+            }
+
+            // Check if the email already exists
+            if ($this->userModel->emailExists($email)) {
+                echo "Error: User already exists. Please use a different email.";
+                return;
+            }
+
+            // Password confirmation check
+            if ($password !== $confirmPassword) {
+                // Handle error - passwords don't match
+                echo "Passwords do not match.";
+                return;
+            }
+
+            // Hash the password before saving
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+            // Assuming you have a user model to handle database operations
+            $this->userModel->addVendor($firstName, $lastName, $email, $hashedPassword);
+
+            // Redirect or show a success message
+            header("Location: index.php?page=dashboard");
+            exit();
+        } else {
+            include 'view/register.php';
+        }
     }
 
     public function addProduct()
@@ -68,7 +111,7 @@ class Controller
             $product = $this->productModel->getProductById($product_id);
 
             if ($product) {
-                include 'view/editProduct.php'; // Pass the product details to the view
+                include 'view/editProductForm.php'; // Pass the product details to the view
             } else {
                 echo "Product not found.";
             }
@@ -77,31 +120,34 @@ class Controller
         }
     }
 
+
     public function editProduct()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_POST['id']);
-            $name = $_POST['name'];
-            $description = $_POST['description'];
-            $price = $_POST['price'];
-            $rating = $_POST['rating'];
-            $address = $_POST['address'];
-            $status = $_POST['status'];
+            $product_name = $_POST['product_name'];
+            $sku = $_POST['sku'];
+            $category = $_POST['category'];
+            $shipping_days = $_POST['shipping_days'];
+            $gender = $_POST['gender'];
+            $inventory = $_POST['inventory'];
 
             // Update the product in the database
-            $success = $this->productModel->editProduct($id, $name, $description, $price, $rating, $address, $status);
+            $success = $this->productModel->editProduct($id, $product_name, $sku, $category, $shipping_days, $gender, $inventory);
 
             if ($success) {
                 echo "<script>
-                    alert('Product updated successfully');
-                    window.location.href = 'index.php?page=dashboard';
-                  </script>";
+                alert('Product updated successfully');
+                window.location.href = 'index.php?page=dashboard';
+              </script>";
                 exit();
             } else {
                 echo "Error updating product.";
             }
         }
     }
+
+
 
     public function deleteProduct()
     {
@@ -182,16 +228,14 @@ class Controller
         exit();
     }
 
-    public function vendorDashboard(){
+    public function vendorDashboard()
+    {
+        $products = $this->productModel->getProducts();
         include 'view/vendorDashboard.php';
     }
 
     public function handleLogin()
     {
-        // if (session_status() == PHP_SESSION_NONE) {
-        //     session_start();
-        // }
-
         $error = '';
 
 
@@ -214,7 +258,6 @@ class Controller
                     // Check if the user is an admin or a vendor
                     $isAdmin = $this->userModel->isAdmin($email);
                     // $isAdmin = '1';
-                    echo "is_admin value: " . $isAdmin;
                     if ($isAdmin === 1) {
                         echo "<script>
                         alert('Login successful. Redirecting to Admin Dashboard.');
@@ -251,6 +294,49 @@ class Controller
         } else {
             // Fallback to the regular way if not an AJAX request
             include_once 'view/filterdata.php';
+        }
+    }
+
+    public function editVendorProductForm()
+    {
+        if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+            $product_id = intval($_GET['id']);
+
+            // Retrieve the product details from the model
+            $product = $this->productModel->getVendorProductById($product_id);
+
+            if ($product) {
+                include 'view/editVendorProductForm.php'; // Pass the product details to the view
+            } else {
+                echo "Product not found.";
+            }
+        } else {
+            echo "Invalid product ID.";
+        }
+    }
+
+    public function editVendorProduct()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['product_id']) && isset($_POST['inventory'])) {
+                $id = intval($_POST['product_id']);
+                $inventory = $_POST['inventory'];
+
+                // Update only the inventory in the database
+                $success = $this->productModel->updateInventory($id, $inventory);
+
+                if ($success) {
+                    echo "<script>
+                alert('Inventory updated successfully');
+                window.location.href = 'index.php?page=vendorDashboard';
+              </script>";
+                    exit();
+                } else {
+                    echo "Error updating inventory.";
+                }
+            } else {
+                echo "Product ID or Inventory not set.";
+            }
         }
     }
 }

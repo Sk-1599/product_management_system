@@ -261,7 +261,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Welcome</span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Welcome</span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->
@@ -303,34 +303,42 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                                     <div class="card-body">
                                         <?php if (isset($product)): ?>
                                             <form action="index.php?page=editProduct" method="POST">
-                                                <input type="hidden" name="id" value="<?= $product['id'] ?>">
+                                                <input type="hidden" name="id" value="<?= htmlspecialchars($product['id']) ?>">
+
                                                 <div class="form-group">
-                                                    <label for="itemName">Item Name</label>
-                                                    <input type="text" class="form-control" id="itemName" value="<?= htmlspecialchars($product['name']) ?>" name="name" required>
+                                                    <label for="product_name">Product Name</label>
+                                                    <input type="text" class="form-control" id="product_name" name="product_name" value="<?= htmlspecialchars($product['product_name']) ?>" required>
                                                 </div>
+
                                                 <div class="form-group">
-                                                    <label for="description">Description</label>
-                                                    <input type="text" class="form-control" id="description" value="<?= htmlspecialchars($product['description']) ?>" name="description" required>
+                                                    <label for="sku">SKU</label>
+                                                    <input type="text" class="form-control" id="sku" value="<?= isset($product['sku']) ? htmlspecialchars($product['sku']) : '' ?>" name="sku" required>
                                                 </div>
+
                                                 <div class="form-group">
-                                                    <label for="price">Price</label>
-                                                    <input type="number" step="0.01" class="form-control" id="price" name="price" value="<?= htmlspecialchars($product['price']) ?>" required>
+                                                    <label for="category">Category</label>
+                                                    <input type="text" class="form-control" id="category" value="<?= isset($product['category']) ? htmlspecialchars($product['category']) : '' ?>" name="category" required>
                                                 </div>
+
                                                 <div class="form-group">
-                                                    <label for="rating">Rating</label>
-                                                    <input type="number" step="0.1" max="5" class="form-control" id="rating" name="rating" value="<?= htmlspecialchars($product['rating']) ?>" required>
+                                                    <label for="shipping_days">Shipping Days</label>
+                                                    <input type="number" class="form-control" id="shipping_days" value="<?= isset($product['shipping_days']) ? htmlspecialchars($product['shipping_days']) : '' ?>" name="shipping_days" required>
                                                 </div>
+
                                                 <div class="form-group">
-                                                    <label for="address">Address</label>
-                                                    <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($product['address']) ?>" required>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="status">Status</label>
-                                                    <select class="form-control" id="status" name="status" required>
-                                                        <option value="Available" <?= $product['status'] === 'Available' ? 'selected' : '' ?>>Available</option>
-                                                        <option value="Out of Stock" <?= $product['status'] === 'Out of Stock' ? 'selected' : '' ?>>Out of Stock</option>
+                                                    <label for="gender">Gender</label>
+                                                    <select class="form-control" id="gender" name="gender" required>
+                                                        <option value="Male" <?= isset($product['gender']) && $product['gender'] === 'Male' ? 'selected' : '' ?>>Male</option>
+                                                        <option value="Female" <?= isset($product['gender']) && $product['gender'] === 'Female' ? 'selected' : '' ?>>Female</option>
+                                                        <option value="Unisex" <?= isset($product['gender']) && $product['gender'] === 'Unisex' ? 'selected' : '' ?>>Unisex</option>
                                                     </select>
                                                 </div>
+
+                                                <div class="form-group">
+                                                    <label for="inventory">Inventory</label>
+                                                    <input type="number" class="form-control" id="inventory" value="<?= isset($product['inventory']) ? htmlspecialchars($product['inventory']) : '' ?>" name="inventory" required>
+                                                </div>
+
                                                 <button type="submit" class="btn btn-primary">Edit Product</button>
                                             </form>
                                         <?php else: ?>

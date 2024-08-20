@@ -124,32 +124,37 @@ class ProductModel
 
 
     // Update an item
-    public function editProduct($id, $name, $description, $price, $rating, $address, $status)
+    public function editProduct($id, $product_name, $sku, $category, $shipping_days, $gender, $inventory)
     {
         try {
             $this->db->beginTransaction();
 
-            $sql = "UPDATE products SET product_name = :name WHERE product_id = :id";
+            // Update the product name in the products table
+            $sql = "UPDATE products 
+                SET product_name = :product_name 
+                WHERE product_id = :id";
             $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':name', $name);
+            $stmt->bindParam(':product_name', $product_name);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
 
-            $sql = "UPDATE product_values SET value = :value WHERE product_id = :id AND attribute_id = :attr_id";
-            $stmt = $this->db->prepare($sql);
-
+            // Update the SKU, Category, Shipping Days, Gender, and Inventory in the product_values table
             $attributes = [
-                1 => $description,
-                2 => $price,
-                3 => $rating,
-                4 => $address,
-                5 => $status
+                '1' => $sku,
+                '2' => $category,
+                '3' => $shipping_days,
+                '4' => $gender,
+                '5' => $inventory,
             ];
 
-            foreach ($attributes as $attr_id => $value) {
+            foreach ($attributes as $attribute_id => $value) {
+                $sql = "UPDATE product_values 
+                    SET value = :value 
+                    WHERE product_id = :id AND attribute_id = :attribute_id";
+                $stmt = $this->db->prepare($sql);
                 $stmt->bindParam(':value', $value);
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                $stmt->bindParam(':attr_id', $attr_id, PDO::PARAM_INT);
+                $stmt->bindParam(':attribute_id', $attribute_id, PDO::PARAM_INT);
                 $stmt->execute();
             }
 
@@ -160,6 +165,8 @@ class ProductModel
             return false;
         }
     }
+
+
 
     public function getProductById($id)
     {
@@ -175,28 +182,30 @@ class ProductModel
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             if (empty($product)) {
                 $product['id'] = $row['product_id'];
-                $product['name'] = $row['product_name'];
+                $product['product_name'] = $row['product_name'];
             }
             switch ($row['attribute_id']) {
                 case 1:
-                    $product['description'] = $row['value'];
+                    $product['sku'] = $row['value'];
                     break;
                 case 2:
-                    $product['price'] = $row['value'];
+                    $product['category'] = $row['value'];
                     break;
                 case 3:
-                    $product['rating'] = $row['value'];
+                    $product['shipping_days'] = $row['value'];
                     break;
                 case 4:
-                    $product['address'] = $row['value'];
+                    $product['gender'] = $row['value'];
                     break;
                 case 5:
-                    $product['status'] = $row['value'];
+                    $product['inventory'] = $row['value'];
                     break;
             }
         }
+
         return $product;
     }
+
     public function searchProducts($name_query, $price_query, $status_query)
     {
         $sql = "SELECT p.product_id, p.product_name,
@@ -249,5 +258,71 @@ class ProductModel
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getVendorProductById($id)
+    {
+        $sql = "SELECT 
+                p.product_id, 
+                p.product_name,
+                pv_sku.value AS sku, 
+                pv_category.value AS category, 
+                pv_shipping_days.value AS shipping_days, 
+                pv_gender.value AS gender, 
+                pv_inventory.value AS inventory
+            FROM products p
+            LEFT JOIN product_values pv_sku ON p.product_id = pv_sku.product_id AND pv_sku.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'sku')
+            LEFT JOIN product_values pv_category ON p.product_id = pv_category.product_id AND pv_category.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'category')
+            LEFT JOIN product_values pv_shipping_days ON p.product_id = pv_shipping_days.product_id AND pv_shipping_days.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'shipping days')
+            LEFT JOIN product_values pv_gender ON p.product_id = pv_gender.product_id AND pv_gender.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'gender')
+            LEFT JOIN product_values pv_inventory ON p.product_id = pv_inventory.product_id AND pv_inventory.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'inventory')
+            WHERE p.product_id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    public function updateInventory($id, $inventory)
+    {
+        try {
+            // Fetch attribute_id for 'Inventory'
+            $attributeId = $this->getAttributeId('Inventory');
+
+            if ($attributeId === null) {
+                throw new Exception('Attribute ID not found.');
+            }
+
+            // Update only the inventory field in the product_values table
+            $sql = "UPDATE product_values 
+                SET value = :inventory 
+                WHERE product_id = :id AND attribute_id = :attribute_id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':inventory', $inventory, PDO::PARAM_STR);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':attribute_id', $attributeId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return true;
+        } catch (PDOException $e) {
+            error_log("PDOException: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            error_log("Exception: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function getAttributeId($attributeName)
+    {
+        $sql = "SELECT attribute_id FROM attribute_table WHERE attribute_name = :attribute_name";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':attribute_name', $attributeName, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['attribute_id'] : null;
     }
 }

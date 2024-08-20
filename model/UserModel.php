@@ -55,6 +55,35 @@ class UserModel
         return false;
     }
 
+    public function addVendor($firstName, $lastName, $email, $hashedPassword)
+    {
+        $isAdmin = 0; // 0 for vendor
+        $stmt = $this->conn->prepare('INSERT INTO admin_auth (firstname, lastname, email, password, is_admin) VALUES (?, ?, ?, ?, ?)');
+        // $stmt->bindParam("ssssi", $firstName, $lastName, $email, $hashedPassword, $isAdmin);
+
+        // Bind parameters one by one
+        $stmt->bindParam(1, $firstName);
+        $stmt->bindParam(2, $lastName);
+        $stmt->bindParam(3, $email);
+        $stmt->bindParam(4, $hashedPassword);
+        $stmt->bindParam(5, $isAdmin, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            echo "Vendor added successfully.";
+        } else {
+            echo "Error: " . $stmt->errorInfo()[2]; // Display the specific SQL error
+        }
+    }
+
+    public function emailExists($email)
+    {
+        $stmt = $this->conn->prepare('SELECT COUNT(*) FROM admin_auth WHERE email = ?');
+        $stmt->bindParam(1, $email);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
+
+
     public function isAdmin($email)
     {
         $stmt = $this->conn->prepare('SELECT is_admin FROM admin_auth WHERE email = :email LIMIT 1');
