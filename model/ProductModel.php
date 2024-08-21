@@ -206,23 +206,18 @@ class ProductModel
         return $product;
     }
 
-    public function searchProducts($name_query, $price_query, $status_query)
+    public function searchProducts($name_query, $sku_query, $category_query, $shipping_days_query, $gender_query, $inventory_query)
     {
         $sql = "SELECT p.product_id, p.product_name,
-            MAX(CASE WHEN at.attribute_name = 'Description' THEN pv.value END) as description,
-            MAX(CASE WHEN at.attribute_name = 'Price' THEN pv.value END) as price,
-            MAX(CASE WHEN at.attribute_name = 'Rating' THEN pv.value END) as rating,
-            MAX(CASE WHEN at.attribute_name = 'Status' THEN pv.value END) as status
-        FROM products p
-        LEFT JOIN product_values pv ON p.product_id = pv.product_id
-        LEFT JOIN attribute_table at ON pv.attribute_id = at.attribute_id
-        LEFT JOIN product_values pv_description ON p.product_id = pv_description.product_id
-        LEFT JOIN attribute_table at_description ON pv_description.attribute_id = at_description.attribute_id AND at_description.attribute_name = 'description'
-        LEFT JOIN product_values pv_price ON p.product_id = pv_price.product_id
-        LEFT JOIN attribute_table at_price ON pv_price.attribute_id = at_price.attribute_id AND at_price.attribute_name = 'price'
-        LEFT JOIN product_values pv_status ON p.product_id = pv_status.product_id
-        LEFT JOIN attribute_table at_status ON pv_status.attribute_id = at_status.attribute_id AND at_status.attribute_name = 'status'
-        WHERE 1=1";
+        MAX(CASE WHEN at.attribute_name = 'SKU' THEN pv.value END) as sku,
+        MAX(CASE WHEN at.attribute_name = 'Category' THEN pv.value END) as category,
+        MAX(CASE WHEN at.attribute_name = 'Shipping Days' THEN pv.value END) as shipping_days,
+        MAX(CASE WHEN at.attribute_name = 'Gender' THEN pv.value END) as gender,
+        MAX(CASE WHEN at.attribute_name = 'Inventory' THEN pv.value END) as inventory
+    FROM products p
+    LEFT JOIN product_values pv ON p.product_id = pv.product_id
+    LEFT JOIN attribute_table at ON pv.attribute_id = at.attribute_id
+    WHERE 1=1";
 
         $params = [];
 
@@ -231,26 +226,59 @@ class ProductModel
             $params[] = "%$name_query%";
         }
 
-        if (!empty($price_query)) {
+        if (!empty($sku_query)) {
             $sql .= " AND p.product_id IN (
-                        SELECT p2.product_id
-                        FROM products p2
-                        LEFT JOIN product_values pv2 ON p2.product_id = pv2.product_id
-                        LEFT JOIN attribute_table at2 ON pv2.attribute_id = at2.attribute_id
-                        WHERE at2.attribute_name = 'price' AND pv2.value LIKE ?
-                    )";
-            $params[] = "%$price_query%";
+                    SELECT p2.product_id
+                    FROM products p2
+                    LEFT JOIN product_values pv2 ON p2.product_id = pv2.product_id
+                    LEFT JOIN attribute_table at2 ON pv2.attribute_id = at2.attribute_id
+                    WHERE at2.attribute_name = 'SKU' AND pv2.value LIKE ?
+                )";
+            $params[] = "%$sku_query%";
         }
 
-        if (!empty($status_query)) {
+        if (!empty($category_query)) {
             $sql .= " AND p.product_id IN (
-                        SELECT p3.product_id
-                        FROM products p3
-                        LEFT JOIN product_values pv3 ON p3.product_id = pv3.product_id
-                        LEFT JOIN attribute_table at3 ON pv3.attribute_id = at3.attribute_id
-                        WHERE at3.attribute_name = 'status' AND pv3.value LIKE ?
-                    )";
-            $params[] = "%$status_query%";
+                    SELECT p3.product_id
+                    FROM products p3
+                    LEFT JOIN product_values pv3 ON p3.product_id = pv3.product_id
+                    LEFT JOIN attribute_table at3 ON pv3.attribute_id = at3.attribute_id
+                    WHERE at3.attribute_name = 'Category' AND pv3.value LIKE ?
+                )";
+            $params[] = "%$category_query%";
+        }
+
+        if (!empty($shipping_days_query)) {
+            $sql .= " AND p.product_id IN (
+                    SELECT p4.product_id
+                    FROM products p4
+                    LEFT JOIN product_values pv4 ON p4.product_id = pv4.product_id
+                    LEFT JOIN attribute_table at4 ON pv4.attribute_id = at4.attribute_id
+                    WHERE at4.attribute_name = 'Shipping Days' AND pv4.value LIKE ?
+                )";
+            $params[] = "%$shipping_days_query%";
+        }
+
+        if (!empty($gender_query)) {
+            $sql .= " AND p.product_id IN (
+                    SELECT p5.product_id
+                    FROM products p5
+                    LEFT JOIN product_values pv5 ON p5.product_id = pv5.product_id
+                    LEFT JOIN attribute_table at5 ON pv5.attribute_id = at5.attribute_id
+                    WHERE at5.attribute_name = 'Gender' AND pv5.value LIKE ?
+                )";
+            $params[] = "%$gender_query%";
+        }
+
+        if (!empty($inventory_query)) {
+            $sql .= " AND p.product_id IN (
+                    SELECT p6.product_id
+                    FROM products p6
+                    LEFT JOIN product_values pv6 ON p6.product_id = pv6.product_id
+                    LEFT JOIN attribute_table at6 ON pv6.attribute_id = at6.attribute_id
+                    WHERE at6.attribute_name = 'Inventory' AND pv6.value LIKE ?
+                )";
+            $params[] = "%$inventory_query%";
         }
 
         $sql .= " GROUP BY p.product_id, p.product_name";
@@ -259,6 +287,7 @@ class ProductModel
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
     public function getVendorProductById($id)
     {
@@ -324,5 +353,33 @@ class ProductModel
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ? $result['attribute_id'] : null;
+    }
+
+    public function sortProducts($sortField, $sortOrder)
+    {
+        $allowedFields = ['sku', 'product_name', 'category', 'shipping_days', 'gender', 'inventory'];
+
+        if (!in_array($sortField, $allowedFields)) {
+            $sortField = 'sku'; // Default sort field
+        }
+
+        $sortOrder = strtoupper($sortOrder) === 'DESC' ? 'DESC' : 'ASC';
+
+        $query = "SELECT p.product_id, p.product_name, 
+                     MAX(CASE WHEN pv.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'sku') THEN pv.value ELSE NULL END) AS sku,
+                     MAX(CASE WHEN pv.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'category') THEN pv.value ELSE NULL END) AS category,
+                     MAX(CASE WHEN pv.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'Shipping days') THEN pv.value ELSE NULL END) AS shipping_days,
+                     MAX(CASE WHEN pv.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'gender') THEN pv.value ELSE NULL END) AS gender,
+                     MAX(CASE WHEN pv.attribute_id = (SELECT attribute_id FROM attribute_table WHERE attribute_name = 'inventory') THEN pv.value ELSE NULL END) AS inventory
+              FROM products p
+              LEFT JOIN product_values pv ON p.product_id = pv.product_id
+              GROUP BY p.product_id
+              ORDER BY $sortField $sortOrder";
+
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        // print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

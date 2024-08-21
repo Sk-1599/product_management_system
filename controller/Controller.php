@@ -283,10 +283,13 @@ class Controller
     public function filterdata()
     {
         $name_query = $_POST['product_name'] ?? '';
-        $price_query = $_POST['price'] ?? '';
-        $status_query = $_POST['status'] ?? '';
+        $sku_query = $_POST['sku'] ?? '';
+        $category_query = $_POST['category'] ?? '';
+        $shipping_days_query = $_POST['shipping_days'] ?? '';
+        $gender_query = $_POST['gender'] ?? '';
+        $inventory_query = $_POST['inventory'] ?? '';
 
-        $products = $this->productModel->searchProducts($name_query, $price_query, $status_query);
+        $products = $this->productModel->searchProducts($name_query, $sku_query, $category_query, $shipping_days_query, $gender_query, $inventory_query);
 
         // Check if it's an AJAX request
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
@@ -296,6 +299,7 @@ class Controller
             include_once 'view/filterdata.php';
         }
     }
+
 
     public function editVendorProductForm()
     {
@@ -337,6 +341,31 @@ class Controller
             } else {
                 echo "Product ID or Inventory not set.";
             }
+        }
+    }
+
+    public function sortProducts()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['page']) && $_GET['page'] === 'sortProducts') {
+            $data = json_decode(file_get_contents("php://input"), true);
+            $sortField = $data['sort_field'];
+            $sortOrder = $data['sort_order'];
+
+            $products = $this->productModel->sortProducts($sortField, $sortOrder);
+
+            foreach ($products as $product) {
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($product['product_name']) . "</td>";
+                echo "<td>" . htmlspecialchars($product['sku']) . "</td>";
+                echo "<td>" . htmlspecialchars($product['category']) . "</td>";
+                echo "<td>" . htmlspecialchars($product['shipping_days']) . "</td>";
+                echo "<td>" . htmlspecialchars($product['gender']) . "</td>";
+                echo "<td>" . htmlspecialchars($product['inventory']) . "</td>";
+                echo "<td><a href='index.php?page=editVendorProductForm&id=" . htmlspecialchars($product['product_id']) . "' class='btn btn-primary my-1'>Edit</a></td>";
+                echo "</tr>";
+            }
+
+            exit;
         }
     }
 }

@@ -57,6 +57,9 @@ switch ($page) {
 	case 'filterdata':
 		$controller->filterdata();
 		break;
+	case 'sortProducts':
+		$controller->sortProducts();
+		break;
 	default:
 		$controller->showLogin();
 		break;

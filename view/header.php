@@ -30,6 +30,8 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <!-- Custom styles for this page -->
     <link href="view/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
+
+
 </head>
 
 <body id="page-top">
@@ -120,17 +122,18 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                     <!-- Topbar Search -->
                     <form id="searchForm" method="post" action="?page=filterdata" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                         <div class="input-group">
-                            <div class="input-group-append">
-                                <!-- <input type="hidden" name="page" value="filterdata"> -->
-                                <input type="text" name="product_name" class="form-control bg-light border-primary small ml-2" placeholder="Search product" aria-label="Search" aria-describedby="basic-addon2">
-                                <input type="text" name="price" class="form-control bg-light border-primary small ml-2" placeholder="Search price" aria-label="Search" aria-describedby="basic-addon2">
-                                <input type="text" name="status" class="form-control bg-light border-primary small ml-2" placeholder="Search status" aria-label="Search" aria-describedby="basic-addon2">
-                                <button class="rounded btn btn-primary mx-1" type="submit">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
+                            <input type="text" name="product_name" class="form-control bg-light border-primary small ml-2" placeholder="Search product name ..." aria-label="Search" aria-describedby="basic-addon2">
+                            <input type="text" name="sku" class="form-control bg-light border-primary small ml-2" placeholder="Search SKU ..." aria-label="Search" aria-describedby="basic-addon2">
+                            <input type="text" name="category" class="form-control bg-light border-primary small ml-2" placeholder="Search category ..." aria-label="Search" aria-describedby="basic-addon2">
+                            <!-- <input type="text" name="shipping_days" class="form-control bg-light border-primary small ml-2" placeholder="Search shipping days ..." aria-label="Search" aria-describedby="basic-addon2"> -->
+                            <!-- <input type="text" name="gender" class="form-control bg-light border-primary small ml-2" placeholder="Search gender ..." aria-label="Search" aria-describedby="basic-addon2"> -->
+                            <!-- <input type="text" name="inventory" class="form-control bg-light border-primary small ml-2" placeholder="Search inventory ..." aria-label="Search" aria-describedby="basic-addon2"> -->
+                            <button class="rounded btn btn-primary mx-1" type="submit">
+                                <i class="fas fa-search fa-sm"></i>
+                            </button>
                         </div>
                     </form>
+
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
@@ -192,4 +195,3 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
                 </nav>
                 <!-- End of Topbar -->
-

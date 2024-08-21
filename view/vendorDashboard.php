@@ -116,12 +116,54 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
-                                                <th>Product Name</th>
-                                                <th><a href="#" class="sort" data-sort="sku">SKU</a></th>
-                                                <th><a href="#" class="sort" data-sort="category">Category</a></th>
-                                                <th><a href="#" class="sort" data-sort="shipping_days">Shipping Days</a></th>
-                                                <th>Gender</th>
-                                                <th>Inventory</th>
+                                                <th>Product Name
+                                                    <a href="#" class="sort" data-sort="product_name" data-order="asc">
+                                                        <i class="fa fa-arrow-up"></i>
+                                                    </a>
+                                                    <a href="#" class="sort" data-sort="product_name" data-order="desc">
+                                                        <i class="fa fa-arrow-down"></i>
+                                                    </a>
+                                                </th>
+                                                <th>SKU
+                                                    <a href="#" class="sort" data-sort="sku" data-order="asc">
+                                                        <i class="fa fa-arrow-up"></i>
+                                                    </a>
+                                                    <a href="#" class="sort" data-sort="sku" data-order="desc">
+                                                        <i class="fa fa-arrow-down"></i>
+                                                    </a>
+                                                </th>
+                                                <th>Category
+                                                    <a href="#" class="sort" data-sort="category" data-order="asc">
+                                                        <i class="fa fa-arrow-up"></i>
+                                                    </a>
+                                                    <a href="#" class="sort" data-sort="category" data-order="desc">
+                                                        <i class="fa fa-arrow-down"></i>
+                                                    </a>
+                                                </th>
+                                                <th>Shipping Days
+                                                    <!-- <a href="#" class="sort" data-sort="shipping_days" data-order="asc">
+                                                        <i class="fa fa-arrow-up"></i>
+                                                    </a>
+                                                    <a href="#" class="sort" data-sort="shipping_days" data-order="desc">
+                                                        <i class="fa fa-arrow-down"></i>
+                                                    </a> -->
+                                                </th>
+                                                <th>Gender
+                                                    <a href="#" class="sort" data-sort="gender" data-order="asc">
+                                                        <i class="fa fa-arrow-up"></i>
+                                                    </a>
+                                                    <a href="#" class="sort" data-sort="gender" data-order="desc">
+                                                        <i class="fa fa-arrow-down"></i>
+                                                    </a>
+                                                </th>
+                                                <th>Inventory
+                                                    <!-- <a href="#" class="sort" data-sort="inventory" data-order="asc">
+                                                        <i class="fa fa-arrow-up"></i>
+                                                    </a>
+                                                    <a href="#" class="sort" data-sort="inventory" data-order="desc">
+                                                        <i class="fa fa-arrow-down"></i>
+                                                    </a> -->
+                                                </th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -151,33 +193,38 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
                 </div>
                 <!-- /.container-fluid -->
-
                 <script>
-                    $(document).ready(function() {
-                        $('.sort').on('click', function(e) {
-                            e.preventDefault();
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const sortLinks = document.querySelectorAll(".sort");
 
-                            let sortBy = $(this).data('sort');
-                            let sortOrder = $(this).hasClass('asc') ? 'desc' : 'asc';
+                        sortLinks.forEach(link => {
+                            link.addEventListener("click", function(e) {
+                                e.preventDefault();
 
-                            // Toggle sort order class
-                            $('.sort').removeClass('asc').removeClass('desc');
-                            $(this).addClass(sortOrder);
+                                const sortField = this.getAttribute("data-sort");
+                                const sortOrder = this.getAttribute("data-order");
 
-                            // AJAX request to sort the data
-                            $.ajax({
-                                url: 'view/sortProducts.php',
-                                type: 'GET',
-                                data: {
-                                    sortBy: sortBy,
-                                    sortOrder: sortOrder
-                                },
-                                success: function(response) {
-                                    $('#dataTable tbody').html(response);
-                                }
+                                fetchSortedData(sortField, sortOrder);
                             });
                         });
                     });
+
+                    function fetchSortedData(sortField, sortOrder) {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open("POST", "index.php?page=sortProducts", true);
+                        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                                document.getElementById("table").innerHTML = xhr.responseText;
+                            }
+                        };
+
+                        const data = JSON.stringify({
+                            sort_field: sortField,
+                            sort_order: sortOrder
+                        });
+                        xhr.send(data);
+                    }
                 </script>
 
 
