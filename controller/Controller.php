@@ -280,25 +280,23 @@ class Controller
     }
 
 
-    public function filterdata()
-    {
-        $name_query = $_POST['product_name'] ?? '';
-        $sku_query = $_POST['sku'] ?? '';
-        $category_query = $_POST['category'] ?? '';
-        $shipping_days_query = $_POST['shipping_days'] ?? '';
-        $gender_query = $_POST['gender'] ?? '';
-        $inventory_query = $_POST['inventory'] ?? '';
+    public function filterData()
+{
+    $name_query = $_POST['product_name'] ?? '';
+    $sku_query = $_POST['sku'] ?? '';
+    $category_query = $_POST['category'] ?? '';
+    $shipping_days_query = $_POST['shipping_days'] ?? '';
+    $gender_query = $_POST['gender'] ?? '';
+    $inventory_query = $_POST['inventory'] ?? '';
 
-        $products = $this->productModel->searchProducts($name_query, $sku_query, $category_query, $shipping_days_query, $gender_query, $inventory_query);
+    $products = $this->productModel->searchProducts($name_query, $sku_query, $category_query, $shipping_days_query, $gender_query, $inventory_query);
 
-        // Check if it's an AJAX request
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            include_once 'view/filterdata.php'; // Only include the part of the view that displays the products
-        } else {
-            // Fallback to the regular way if not an AJAX request
-            include_once 'view/filterdata.php';
-        }
-    }
+    
+    // Return the products data as JSON
+    header('Content-Type: application/json');
+    echo json_encode($products);
+}
+
 
 
     public function editVendorProductForm()

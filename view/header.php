@@ -30,8 +30,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <!-- Custom styles for this page -->
     <link href="view/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
-
-
 </head>
 
 <body id="page-top">

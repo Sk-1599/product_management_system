@@ -73,6 +73,18 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                         </button>
                     </form>
 
+                    <!-- Topbar Search -->
+                    <form id="searchForm" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input type="text" name="product_name" class="form-control bg-light border-primary small ml-2" placeholder="Search product name ..." aria-label="Search" aria-describedby="basic-addon2">
+                            <input type="text" name="sku" class="form-control bg-light border-primary small ml-2" placeholder="Search SKU ..." aria-label="Search" aria-describedby="basic-addon2">
+                            <input type="text" name="category" class="form-control bg-light border-primary small ml-2" placeholder="Search category ..." aria-label="Search" aria-describedby="basic-addon2">
+                            <button class="rounded btn btn-primary mx-1" type="submit">
+                                <i class="fas fa-search fa-sm"></i>
+                            </button>
+                        </div>
+                    </form>
+
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
 
@@ -226,6 +238,52 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                         xhr.send(data);
                     }
                 </script>
+
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+                <script>
+                    $(document).ready(function() {
+                        $('#searchForm').on('submit', function(e) {
+                            e.preventDefault(); // Prevent the form from submitting the normal way
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '?page=filterData', // Adjust the URL to match your routing
+                                data: $(this).serialize(),
+                                dataType: 'json',
+                                success: function(response) {
+                                    if (response.error) {
+                                        alert(response.error);
+                                        window.location.href = '?page=showLogin';
+                                    } else {
+                                        $('#table').empty();
+                                        $.each(response, function(index, product) {
+                                            $('#table').append(`
+                            <tr>
+                                <td>${product.product_name}</td>
+                                <td>${product.sku}</td>
+                                <td>${product.category}</td>
+                                <td>${product.shipping_days}</td>
+                                <td>${product.gender}</td>
+                                <td>${product.inventory}</td>
+                                <td>
+                                    <a href="index.php?page=editProductForm&id=${product.product_id}" class="btn btn-primary my-1">Edit</a>
+                                    <a href="index.php?page=deleteproduct&id=${product.product_id}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+                                </td>
+                            </tr>
+                        `);
+                                        });
+                                    }
+                                },
+                                error: function() {
+                                    alert('Error occurred while fetching data.');
+                                }
+                            });
+                        });
+                    });
+                </script>
+
+
 
 
                 <?php include 'view/footer.php' ?>

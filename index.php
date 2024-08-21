@@ -54,8 +54,8 @@ switch ($page) {
 	case 'deleteproduct':
 		$controller->deleteProduct();
 		break;
-	case 'filterdata':
-		$controller->filterdata();
+	case 'filterData':
+		$controller->filterData();
 		break;
 	case 'sortProducts':
 		$controller->sortProducts();
