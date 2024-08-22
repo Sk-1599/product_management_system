@@ -29,49 +29,6 @@ class Controller
         include 'view/showVendorForm.php';
     }
 
-
-    public function registerVendor()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $firstName = isset($_POST['first_name']) ? $_POST['first_name'] : '';
-            $lastName = isset($_POST['last_name']) ? $_POST['last_name'] : '';
-            $email = isset($_POST['email']) ? $_POST['email'] : '';
-            $password = isset($_POST['password']) ? $_POST['password'] : '';
-            $confirmPassword = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
-
-            // Basic validation to check if fields are not empty
-            if (empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($confirmPassword)) {
-                echo "All fields are required.";
-                return;
-            }
-
-            // Check if the email already exists
-            if ($this->userModel->emailExists($email)) {
-                echo "Error: User already exists. Please use a different email.";
-                return;
-            }
-
-            // Password confirmation check
-            if ($password !== $confirmPassword) {
-                // Handle error - passwords don't match
-                echo "Passwords do not match.";
-                return;
-            }
-
-            // Hash the password before saving
-            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-
-            // Assuming you have a user model to handle database operations
-            $this->userModel->addVendor($firstName, $lastName, $email, $hashedPassword);
-
-            // Redirect or show a success message
-            header("Location: index.php?page=dashboard");
-            exit();
-        } else {
-            include 'view/register.php';
-        }
-    }
-
     public function addProduct()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -183,18 +140,26 @@ class Controller
             $password = trim($_POST['password']);
             $confirm_password = trim($_POST['confirm_password']);
 
-            if (empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($confirm_password)) {
-                $error = 'Please fill in all fields.';
-            } elseif ($password !== $confirm_password) {
-                $error = 'Passwords do not match.';
-            } else {
-                $this->userModel->registerUser($firstname, $lastname, $email, $password);
-                echo "<script>
-                        alert('Registered successfully');
-                        window.location.href = 'index.php?page=login';
-                        </script>";
-                exit;
-            }
+            $passwordPattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/';
+
+        if (empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($confirm_password)) {
+            $error = 'Please fill in all fields.';
+        } elseif ($password !== $confirm_password) {
+            $error = 'Passwords do not match.';
+        } 
+        // elseif (!preg_match($passwordPattern, $password)) {
+        //     $error = 'Password must be at least 8 characters long and include both letters and numbers.';
+        // } 
+        else {
+            // Hash the password before storing
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $this->userModel->registerUser($firstname, $lastname, $email, $hashedPassword);
+            echo "<script>
+                    alert('Registered successfully');
+                    window.location.href = 'index.php?page=login';
+                    </script>";
+            exit;
+        }
         }
 
         include 'view/register.php';
@@ -281,21 +246,21 @@ class Controller
 
 
     public function filterData()
-{
-    $name_query = $_POST['product_name'] ?? '';
-    $sku_query = $_POST['sku'] ?? '';
-    $category_query = $_POST['category'] ?? '';
-    $shipping_days_query = $_POST['shipping_days'] ?? '';
-    $gender_query = $_POST['gender'] ?? '';
-    $inventory_query = $_POST['inventory'] ?? '';
+    {
+        $name_query = $_POST['product_name'] ?? '';
+        $sku_query = $_POST['sku'] ?? '';
+        $category_query = $_POST['category'] ?? '';
+        $shipping_days_query = $_POST['shipping_days'] ?? '';
+        $gender_query = $_POST['gender'] ?? '';
+        $inventory_query = $_POST['inventory'] ?? '';
 
-    $products = $this->productModel->searchProducts($name_query, $sku_query, $category_query, $shipping_days_query, $gender_query, $inventory_query);
+        $products = $this->productModel->searchProducts($name_query, $sku_query, $category_query, $shipping_days_query, $gender_query, $inventory_query);
 
-    
-    // Return the products data as JSON
-    header('Content-Type: application/json');
-    echo json_encode($products);
-}
+
+        // Return the products data as JSON
+        header('Content-Type: application/json');
+        echo json_encode($products);
+    }
 
 
 
@@ -320,8 +285,8 @@ class Controller
     public function editVendorProduct()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['product_id']) && isset($_POST['inventory'])) {
-                $id = intval($_POST['product_id']);
+            if (isset($_POST['id']) && isset($_POST['inventory'])) {
+                $id = intval($_POST['id']);
                 $inventory = $_POST['inventory'];
 
                 // Update only the inventory in the database
@@ -365,5 +330,32 @@ class Controller
 
             exit;
         }
+    }
+
+    public function getProducts()
+    {
+        $page = isset($_GET['pageno']) ? (int) $_GET['pageno'] : 1;
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+
+        // Filters
+        $filters = [
+            'product_name' => $_GET['product_name'] ?? '',
+            'sku' => $_GET['sku'] ?? '',
+            'category' => $_GET['category'] ?? '',
+        ];
+
+        // Fetch products with pagination
+        $products = $this->productModel->getPaginatedProducts($limit, $offset, $filters);
+        $total_products = $this->productModel->getTotalProductCount($filters);
+        $total_pages = ceil($total_products / $limit);
+
+        // Return data as JSON for AJAX
+        echo json_encode([
+            'products' => $products,
+            'total_pages' => $total_pages,
+            'current_page' => $page
+        ]);
+        exit();
     }
 }

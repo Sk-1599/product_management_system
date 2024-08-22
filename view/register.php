@@ -61,17 +61,8 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block">Register</button>
                                 <hr>
-                                <a href="#" class="btn btn-google btn-user btn-block">
-                                    <i class="fab fa-google fa-fw"></i> Register with Google
-                                </a>
-                                <a href="#" class="btn btn-facebook btn-user btn-block">
-                                    <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook
-                                </a>
                             </form>
                             <hr>
-                            <div class="text-center">
-                                <a class="small" href="#">Forgot Password?</a>
-                            </div>
                             <div class="text-center">
                                 <a class="small" href="?page=login">Already have an account? Login!</a>
                             </div>

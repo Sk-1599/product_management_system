@@ -56,6 +56,44 @@
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const sortLinks = document.querySelectorAll(".sort");
+
+                        sortLinks.forEach(link => {
+                            link.addEventListener("click", function(e) {
+                                e.preventDefault();
+
+                                const sortField = this.getAttribute("data-sort");
+                                const sortOrder = this.getAttribute("data-order");
+
+                                fetchSortedData(sortField, sortOrder);
+                            });
+                        });
+                    });
+
+                    function fetchSortedData(sortField, sortOrder) {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open("POST", "index.php?page=sortProducts", true);
+                        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                                document.getElementById("table").innerHTML = xhr.responseText;
+                            }
+                        };
+
+                        const data = JSON.stringify({
+                            sort_field: sortField,
+                            sort_order: sortOrder
+                        });
+                        xhr.send(data);
+                    }
+                </script>
+
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+                
+
 
 
 </body>

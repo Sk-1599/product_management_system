@@ -234,6 +234,7 @@ class ProductModel
                     LEFT JOIN attribute_table at2 ON pv2.attribute_id = at2.attribute_id
                     WHERE at2.attribute_name = 'SKU' AND pv2.value LIKE ?
                 )";
+            // $sql .= " AND pv.value LIKE ? AND at.attribute_name = 'SKU'";
             $params[] = "%$sku_query%";
         }
 
@@ -246,39 +247,6 @@ class ProductModel
                     WHERE at3.attribute_name = 'Category' AND pv3.value LIKE ?
                 )";
             $params[] = "%$category_query%";
-        }
-
-        if (!empty($shipping_days_query)) {
-            $sql .= " AND p.product_id IN (
-                    SELECT p4.product_id
-                    FROM products p4
-                    LEFT JOIN product_values pv4 ON p4.product_id = pv4.product_id
-                    LEFT JOIN attribute_table at4 ON pv4.attribute_id = at4.attribute_id
-                    WHERE at4.attribute_name = 'Shipping Days' AND pv4.value LIKE ?
-                )";
-            $params[] = "%$shipping_days_query%";
-        }
-
-        if (!empty($gender_query)) {
-            $sql .= " AND p.product_id IN (
-                    SELECT p5.product_id
-                    FROM products p5
-                    LEFT JOIN product_values pv5 ON p5.product_id = pv5.product_id
-                    LEFT JOIN attribute_table at5 ON pv5.attribute_id = at5.attribute_id
-                    WHERE at5.attribute_name = 'Gender' AND pv5.value LIKE ?
-                )";
-            $params[] = "%$gender_query%";
-        }
-
-        if (!empty($inventory_query)) {
-            $sql .= " AND p.product_id IN (
-                    SELECT p6.product_id
-                    FROM products p6
-                    LEFT JOIN product_values pv6 ON p6.product_id = pv6.product_id
-                    LEFT JOIN attribute_table at6 ON pv6.attribute_id = at6.attribute_id
-                    WHERE at6.attribute_name = 'Inventory' AND pv6.value LIKE ?
-                )";
-            $params[] = "%$inventory_query%";
         }
 
         $sql .= " GROUP BY p.product_id, p.product_name";
@@ -381,5 +349,88 @@ class ProductModel
         $stmt->execute();
         // print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // In productModel.php
+    public function getPaginatedProducts($limit, $offset, $filters)
+    {
+        $sql = "
+            SELECT p.product_name,
+                   MAX(CASE WHEN a.attribute_name = 'SKU' THEN pv.value END) AS sku,
+                   MAX(CASE WHEN a.attribute_name = 'Category' THEN pv.value END) AS category,
+                   MAX(CASE WHEN a.attribute_name = 'Shipping Days' THEN pv.value END) AS shipping_days,
+                   MAX(CASE WHEN a.attribute_name = 'Gender' THEN pv.value END) AS gender,
+                   MAX(CASE WHEN a.attribute_name = 'Inventory' THEN pv.value END) AS inventory
+            FROM products p
+            LEFT JOIN product_values pv ON p.product_id = pv.product_id
+            LEFT JOIN attribute_table a ON pv.attribute_id = a.attribute_id
+            WHERE 1=1";
+
+        // Apply filters if they exist
+        if (!empty($filters['product_name'])) {
+            $sql .= " AND p.product_name LIKE :product_name";
+        }
+        if (!empty($filters['sku'])) {
+            $sql .= " AND a.attribute_name = 'SKU' AND pv.value LIKE :sku";
+        }
+        if (!empty($filters['category'])) {
+            $sql .= " AND a.attribute_name = 'Category' AND pv.value LIKE :category";
+        }
+
+        $sql .= " GROUP BY p.product_id
+                  LIMIT :offset, :limit";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+        if (!empty($filters['product_name'])) {
+            $stmt->bindValue(':product_name', '%' . $filters['product_name'] . '%', PDO::PARAM_STR);
+        }
+        if (!empty($filters['sku'])) {
+            $stmt->bindValue(':sku', '%' . $filters['sku'] . '%', PDO::PARAM_STR);
+        }
+        if (!empty($filters['category'])) {
+            $stmt->bindValue(':category', '%' . $filters['category'] . '%', PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function getTotalProductCount($filters)
+    {
+        $sql = "
+            SELECT COUNT(DISTINCT p.product_id) as total
+            FROM products p
+            LEFT JOIN product_values pv ON p.product_id = pv.product_id
+            LEFT JOIN attribute_table a ON pv.attribute_id = a.attribute_id
+            WHERE 1=1";
+
+        if (!empty($filters['product_name'])) {
+            $sql .= " AND p.product_name LIKE :product_name";
+        }
+        if (!empty($filters['sku'])) {
+            $sql .= " AND a.attribute_name = 'SKU' AND pv.value LIKE :sku";
+        }
+        if (!empty($filters['category'])) {
+            $sql .= " AND a.attribute_name = 'Category' AND pv.value LIKE :category";
+        }
+
+        $stmt = $this->db->prepare($sql);
+
+        if (!empty($filters['product_name'])) {
+            $stmt->bindValue(':product_name', '%' . $filters['product_name'] . '%', PDO::PARAM_STR);
+        }
+        if (!empty($filters['sku'])) {
+            $stmt->bindValue(':sku', '%' . $filters['sku'] . '%', PDO::PARAM_STR);
+        }
+        if (!empty($filters['category'])) {
+            $stmt->bindValue(':category', '%' . $filters['category'] . '%', PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchColumn();
     }
 }

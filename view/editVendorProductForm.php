@@ -113,7 +113,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                         <div class="card-body">
                             <?php if (isset($product)): ?>
                                 <form action="index.php?page=editVendorProduct" method="POST">
-                                <input type="hidden" name="product_id" value="<?= htmlspecialchars($product['product_id']) ?>">
+                                <input type="hidden" name="id" value="<?= htmlspecialchars($product['product_id']); ?>">
                                     
                                     <div class="form-group">
                                         <label for="product_name">Product Name</label>

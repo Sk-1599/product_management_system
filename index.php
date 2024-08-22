@@ -24,9 +24,6 @@ switch ($page) {
 	case 'showVendorForm':
 		$controller->showVendorForm();
 		break;
-	case 'registerVendor':
-		$controller->registerVendor();
-		break;
 	case 'login':
 		$controller->handleLogin();
 		break;
@@ -59,6 +56,9 @@ switch ($page) {
 		break;
 	case 'sortProducts':
 		$controller->sortProducts();
+		break;
+	case 'getProducts':
+		$controller->getProducts();
 		break;
 	default:
 		$controller->showLogin();
